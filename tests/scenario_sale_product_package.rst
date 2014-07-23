@@ -154,14 +154,14 @@ Create product::
     >>> template.cost_price_method = 'fixed'
     >>> template.account_expense = expense
     >>> template.account_revenue = revenue
-    >>> template.save()
-    >>> product.template = template
-    >>> package = product.packages.new()
+    >>> package = template.packages.new()
     >>> package.name = 'Box'
     >>> package.quantity = 6
+    >>> template.save()
+    >>> template.reload()
+    >>> package, = template.packages
+    >>> product.template = template
     >>> product.save()
-    >>> product.reload()
-    >>> package, = product.packages
 
 
 Create payment term::

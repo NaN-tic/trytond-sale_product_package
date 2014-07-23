@@ -14,15 +14,18 @@ class SaleLine:
     product_has_packages = fields.Function(fields.Boolean(
             'Product Has packages'),
         'on_change_with_product_has_packages')
+    product_template = fields.Function(fields.Boolean(
+            'Product Has packages'),
+        'on_change_with_product_template')
     product_package = fields.Many2One('product.package', 'Package',
         domain=[
-            ('product', '=', Eval('product', 0))
+            ('product', '=', Eval('product_template', 0))
             ],
         states={
             'invisible': ~Eval('product_has_packages', False),
             'required': Eval('product_has_packages', False),
             },
-        depends=['product', 'product_has_packages'])
+        depends=['product_template', 'product_has_packages'])
     package_quantity = fields.Integer('Package Quantity',
         states={
             'invisible': ~Eval('product_has_packages', False),
@@ -50,9 +53,15 @@ class SaleLine:
 
     @fields.depends('product')
     def on_change_with_product_has_packages(self, name=None):
-        if self.product and self.product.packages:
+        if self.product and self.product.template.packages:
             return True
         return False
+
+    @fields.depends('product')
+    def on_change_with_product_template(self, name=None):
+        if self.product:
+            return self.product.template
+        return None
 
     @fields.depends('product_package')
     def on_change_product_package(self):
