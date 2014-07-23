@@ -14,7 +14,7 @@ class SaleLine:
     product_has_packages = fields.Function(fields.Boolean(
             'Product Has packages'),
         'on_change_with_product_has_packages')
-    product_template = fields.Function(fields.Boolean(
+    product_template = fields.Function(fields.Many2One('product.template',
             'Product Has packages'),
         'on_change_with_product_template')
     product_package = fields.Many2One('product.package', 'Package',
@@ -60,7 +60,7 @@ class SaleLine:
     @fields.depends('product')
     def on_change_with_product_template(self, name=None):
         if self.product:
-            return self.product.template
+            return self.product.template.id
         return None
 
     @fields.depends('product_package')
