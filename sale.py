@@ -15,7 +15,7 @@ class SaleLine:
             'Product Has packages'),
         'on_change_with_product_has_packages')
     product_template = fields.Function(fields.Many2One('product.template',
-            'Product Has packages'),
+            "Product's template"),
         'on_change_with_product_template')
     product_package = fields.Many2One('product.package', 'Package',
         domain=[
