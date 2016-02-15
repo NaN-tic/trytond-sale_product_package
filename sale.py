@@ -40,6 +40,8 @@ class SaleLine:
                 'package_quantity': ('The quantity "%s" of product "%s" is '
                     'not a multiple of it\'s package "%s" quantity "%s".'),
                 })
+        cls.quantity.on_change.add('product_package')
+        cls.quantity.on_change.add('quantity')
 
     @fields.depends('product_package', 'quantity', 'product_package',
         'product')
@@ -84,7 +86,6 @@ class SaleLine:
             res['delivery_date'] = self.on_change_with_delivery_date()
         return res
 
-    @fields.depends('product_package', 'quantity')
     def on_change_quantity(self):
         res = super(SaleLine, self).on_change_quantity()
         if self.product_package and self.quantity:
