@@ -91,3 +91,10 @@ class SaleLine:
             res['package_quantity'] = int(self.quantity /
                 self.product_package.quantity)
         return res
+
+    def on_change_product(self):
+        res = super(SaleLine, self).on_change_product()
+        if self.product and not 'product_package' in res:
+            if self.product.template.packages:
+                res['product_package'] = self.product.template.packages[0].id
+        return res
