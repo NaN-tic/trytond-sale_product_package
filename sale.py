@@ -65,29 +65,24 @@ class SaleLine:
 
     @fields.depends('product_package')
     def on_change_product_package(self):
-        res = {}
         if not self.product_package:
-            res['quantity'] = None
-            res['package_quantity'] = None
-        return res
+            self.quantity = None
+            self.package_quantity = None
 
     @fields.depends('product_package', 'package_quantity', 'unit_price',
         'type', methods=['quantity', 'delivery_date'])
     def on_change_package_quantity(self):
-        res = {}
         if self.product_package and self.package_quantity:
             self.quantity = (float(self.package_quantity) *
                 self.product_package.quantity)
-            res['quantity'] = self.quantity
-            res.update(self.on_change_quantity())
-            res['amount'] = self.on_change_with_amount()
-            res['delivery_date'] = self.on_change_with_delivery_date()
-        return res
+            self.on_change_quantity()
+            self.on_change_with_amount()
+            self.on_change_with_delivery_date()
 
     @fields.depends('product_package', 'quantity')
     def on_change_quantity(self):
-        res = super(SaleLine, self).on_change_quantity()
+        super(SaleLine, self).on_change_quantity()
         if self.product_package and self.quantity:
-            res['package_quantity'] = int(self.quantity /
+            self.package_quantity = int(self.quantity /
                 self.product_package.quantity)
-        return res
+        
