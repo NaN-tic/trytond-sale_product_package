@@ -76,8 +76,8 @@ class SaleLine:
             self.quantity = (float(self.package_quantity) *
                 self.product_package.quantity)
             self.on_change_quantity()
-            self.on_change_with_amount()
-            self.on_change_with_delivery_date()
+            self.amount = self.on_change_with_amount()
+            self.delivery_date = self.on_change_with_delivery_date()
 
     @fields.depends('product_package', 'quantity')
     def on_change_quantity(self):
@@ -85,4 +85,3 @@ class SaleLine:
         if self.product_package and self.quantity:
             self.package_quantity = int(self.quantity /
                 self.product_package.quantity)
-        
