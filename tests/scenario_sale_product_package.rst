@@ -9,6 +9,7 @@ Imports::
     >>> from decimal import Decimal
     >>> from operator import attrgetter
     >>> from proteus import config, Model, Wizard
+    >>> from trytond.tests.tools import activate_modules
     >>> from trytond.modules.company.tests.tools import create_company, \
     ...     get_company
     >>> from trytond.modules.account.tests.tools import create_fiscalyear, \
@@ -17,17 +18,9 @@ Imports::
     ...     set_fiscalyear_invoice_sequences, create_payment_term
     >>> today = datetime.date.today()
 
-Create database::
-
-    >>> config = config.set_trytond()
-    >>> config.pool.test = True
-
 Install sale_product_package::
 
-    >>> Module = Model.get('ir.module')
-    >>> sale_module, = Module.find([('name', '=', 'sale_product_package')])
-    >>> Module.install([sale_module.id], config.context)
-    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
+    >>> config = activate_modules('sale_product_package')
 
 Create company::
 
@@ -122,10 +115,10 @@ Sale products with package::
     >>> line.amount
     Decimal('120.00')
     >>> line.quantity = 13
-    >>> sale.save()
+    >>> sale.save()  # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
-    UserError: ('UserError', (u'The quantity "13.0" of product "product" is not a multiple of it\'s package "Box" quantity "6.0".', ''))
+    UserError: ...
     >>> line.quantity = 12
     >>> line.package_quantity
     2
