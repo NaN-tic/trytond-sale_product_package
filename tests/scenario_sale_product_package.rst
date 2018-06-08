@@ -185,8 +185,8 @@ Sale products with package::
     >>> sale.invoice_method = 'order'
     >>> line = sale.lines.new()
     >>> line.product = product
-    >>> line.product_package.name
-    'Box'
+    >>> line.product_package.name == 'Box'
+    True
     >>> line.package_quantity = 2
     >>> line.quantity
     12.0
