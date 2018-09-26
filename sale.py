@@ -7,8 +7,7 @@ from trytond.pyson import Eval
 __all__ = ['SaleLine']
 
 
-class SaleLine:
-    __metaclass__ = PoolMeta
+class SaleLine(metaclass=PoolMeta):
     __name__ = 'sale.line'
 
     product_has_packages = fields.Function(fields.Boolean(
@@ -20,7 +19,7 @@ class SaleLine:
     product_package = fields.Many2One('product.package', 'Package',
         domain=[
             ('product', '=', Eval('product_template', 0))
-            ],
+        ],
         states={
             'invisible': ~Eval('product_has_packages', False),
             'required': Eval('product_has_packages', False),
@@ -41,8 +40,7 @@ class SaleLine:
                     'not a multiple of it\'s package "%s" quantity "%s".'),
                 })
 
-    @fields.depends('product_package', 'quantity', 'product_package',
-        'product')
+    @fields.depends('product_package', 'quantity', 'product')
     def pre_validate(self):
         if self.product_package:
             package_quantity = self.quantity / self.product_package.quantity
@@ -69,13 +67,13 @@ class SaleLine:
             self.quantity = None
             self.package_quantity = None
 
-    @fields.depends('product_package', 'package_quantity', 'unit_price',
-        'type', methods=['quantity', 'shipping_date'])
+    @fields.depends('product_package', 'package_quantity', 'quantity',
+        methods=['on_change_quantity', 'on_change_with_amount',
+            'on_change_with_shipping_date',])
     def on_change_package_quantity(self):
         if self.product_package and self.package_quantity:
             self.quantity = (float(self.package_quantity) *
                 self.product_package.quantity)
-            self.quantity = self.quantity
             self.on_change_quantity()
             self.amount = self.on_change_with_amount()
             self.shipping_date = self.on_change_with_shipping_date()
