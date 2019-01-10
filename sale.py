@@ -3,6 +3,8 @@
 from trytond.model import fields
 from trytond.pool import PoolMeta
 from trytond.pyson import Eval
+from trytond.i18n import gettext
+from trytond.exceptions import UserError
 
 __all__ = ['SaleLine']
 
@@ -32,22 +34,16 @@ class SaleLine(metaclass=PoolMeta):
             },
         depends=['product_has_packages'])
 
-    @classmethod
-    def __setup__(cls):
-        super(SaleLine, cls).__setup__()
-        cls._error_messages.update({
-                'package_quantity': ('The quantity "%s" of product "%s" is '
-                    'not a multiple of it\'s package "%s" quantity "%s".'),
-                })
-
     @fields.depends('product_package', 'quantity', 'product')
     def pre_validate(self):
         if self.product_package:
             package_quantity = self.quantity / self.product_package.quantity
             if float(int(package_quantity)) != package_quantity:
-                self.raise_user_error('package_quantity', (self.quantity,
-                    self.product.rec_name, self.product_package.rec_name,
-                    self.product_package.quantity))
+                raise UserError(gettext('sale_product_package.package_quantity',
+                    qty=self.quantity,
+                    product=self.product.rec_name,
+                    package=self.product_package.rec_name,
+                    package_qty=self.product_package.quantity))
 
     @fields.depends('product')
     def on_change_with_product_has_packages(self, name=None):
