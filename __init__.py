@@ -8,3 +8,7 @@ def register():
     Pool.register(
         SaleLine,
         module='sale_product_package', type_='model')
+    Pool.register(
+        HandleShipmentException,
+        HandleInvoiceException,
+        module='sale_product_package', type_='wizard')
