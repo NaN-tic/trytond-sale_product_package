@@ -1,14 +1,14 @@
-# 
+#
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:sale.line:"
 msgid ""
-"The quantity \"%s\" of product \"%s\" is not a multiple of it's package "
-"\"%s\" quantity \"%s\"."
+"The quantity \"%(qty)s\" of product \"%(product)s\" is not a multiple of it's package "
+"\"%(package)s\" quantity \"%(package_qty)s\"."
 msgstr ""
-"La quantitat \"%s\" del producte \"%s\" no és un múltiple de la quantitat "
-"del seu paquet \"%s\" (\"%s\")."
+"La quantitat \"%(qty)s\" del producte \"%(product)s\" no és un múltiple de la quantitat "
+"del seu paquet \"%(package)s\" (\"%(package_qty)s\")."
 
 msgctxt "field:sale.line,package_quantity:"
 msgid "Package Quantity"
