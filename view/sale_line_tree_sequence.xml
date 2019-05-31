@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<data>
+    <xpath expr="/tree/field[@name='product']" position="after">
+        <field name="product_package"/>
+        <field name="package_quantity"/>
+        <field name="product_has_packages" tree_invisible="1"/>
+    </xpath>
+</data>
