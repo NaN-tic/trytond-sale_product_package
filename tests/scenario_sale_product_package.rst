@@ -103,9 +103,13 @@ Create product::
     >>> package = template.packages.new()
     >>> package.name = 'Box'
     >>> package.quantity = 6
+    >>> package2 = template.packages.new()
+    >>> package2.name = 'Box 2'
+    >>> package2.quantity = 2
+    >>> package2.is_default = False
     >>> template.save()
     >>> template.reload()
-    >>> package, = template.packages
+    >>> package, package2 = template.packages
     >>> product.template = template
     >>> product.save()
 
@@ -125,7 +129,6 @@ Sale products with package::
     >>> sale.invoice_method = 'order'
     >>> line = sale.lines.new()
     >>> line.product = product
-    >>> line.product_package = package
     >>> line.package_quantity = 2
     >>> line.quantity
     12.0
