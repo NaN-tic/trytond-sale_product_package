@@ -52,6 +52,16 @@ class SaleLine(metaclass=PoolMeta):
                     package_qty=self.product_package.quantity))
 
     @fields.depends('product')
+    def on_change_product(self):
+        super(SaleLine, self).on_change_product()
+        self.product_package = None
+        if self.product:
+            for package in self.product.template.packages:
+                if package.is_default:
+                    self.product_package = package
+                    break
+
+    @fields.depends('product')
     def on_change_with_product_has_packages(self, name=None):
         if self.product and self.product.template.packages:
             return True
