@@ -25,15 +25,17 @@ class SaleLine(metaclass=PoolMeta):
         ],
         states={
             'invisible': ~Eval('product_has_packages', False),
-            'required': Eval('product_has_packages', False),
+            'required': (Eval('product_has_packages', False)
+                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancel'])),
             },
-        depends=['product_template', 'product_has_packages'])
+        depends=['sale_state', 'product_template', 'product_has_packages'])
     package_quantity = fields.Integer('Package Quantity',
         states={
             'invisible': ~Eval('product_has_packages', False),
-            'required': Eval('product_has_packages', False),
+            'required': (Eval('product_has_packages', False)
+                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancel'])),
             },
-        depends=['product_has_packages'])
+        depends=['sale_state', 'product_has_packages'])
 
     @fields.depends('product_package', 'quantity', 'product')
     def pre_validate(self):
