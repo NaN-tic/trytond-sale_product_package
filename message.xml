@@ -3,8 +3,11 @@
 this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data group="1">
-      <record model="ir.message" id="package_quantity">
+      <record model="ir.message" id="msg_package_quantity">
           <field name="text">The quantity "%(qty)s" of product "%(product)s" is not a multiple of it\'s package "%(package)s" quantity "%(package_qty)s".</field>
+      </record>
+      <record model="ir.message" id="msg_product_package_null">
+          <field name="text">You can not create a package because there are sale lines that already use the product without packages.</field>
       </record>
 </data>
 </tryton>
