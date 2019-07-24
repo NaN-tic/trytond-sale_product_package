@@ -25,6 +25,7 @@ class SaleLine(metaclass=PoolMeta):
         ],
         states={
             'invisible': ~Eval('product_has_packages', False),
+            'readonly': Eval('sale_state').in_(['cancel', 'processing', 'done']),
             'required': (Eval('product_has_packages', False)
                 & ~Eval('sale_state').in_(['draft', 'quotation', 'cancel'])),
             },
@@ -32,6 +33,7 @@ class SaleLine(metaclass=PoolMeta):
     package_quantity = fields.Integer('Package Quantity',
         states={
             'invisible': ~Eval('product_has_packages', False),
+            'readonly': Eval('sale_state').in_(['cancel', 'processing', 'done']),
             'required': (Eval('product_has_packages', False)
                 & ~Eval('sale_state').in_(['draft', 'quotation', 'cancel'])),
             },
