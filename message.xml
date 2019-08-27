@@ -9,5 +9,8 @@ this repository contains the full copyright notices and license terms. -->
       <record model="ir.message" id="msg_product_package_null">
           <field name="text">You can not create a package because there are sale lines that already use the product without packages.</field>
       </record>
+      <record model="ir.message" id="msg_product_has_package_required">
+          <field name="text">You can not confirm because some lines has not product package and is required.</field>
+      </record>
 </data>
 </tryton>

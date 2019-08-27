@@ -7,7 +7,30 @@ from trytond.transaction import Transaction
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
 
-__all__ = ['SaleLine', 'HandleShipmentException', 'HandleInvoiceException']
+__all__ = ['Sale', 'SaleLine',
+    'HandleShipmentException', 'HandleInvoiceException']
+
+
+class Sale(metaclass=PoolMeta):
+    __name__ = 'sale.sale'
+
+    @classmethod
+    def _check_product_has_package_required(cls, sales):
+        for sale in sales:
+            for line in sale.lines:
+                if line.type != 'line':
+                    continue
+                if (line.product and line.product_has_packages
+                        and not line.product_package):
+                    return False
+        return True
+
+    @classmethod
+    def confirm(cls, sales):
+        if not cls._check_product_has_package_required(sales):
+            raise UserError(gettext(
+                'sale_product_package.msg_product_has_package_required'))
+        super(Sale, cls).confirm(sales)
 
 
 class SaleLine(metaclass=PoolMeta):
