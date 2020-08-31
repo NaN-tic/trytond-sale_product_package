@@ -48,17 +48,17 @@ class SaleLine(metaclass=PoolMeta):
         ],
         states={
             'invisible': ~Eval('product_has_packages', False),
-            'readonly': Eval('sale_state').in_(['cancel', 'processing', 'done']),
+            'readonly': Eval('sale_state').in_(['cancelled', 'processing', 'done']),
             'required': (Eval('product_has_packages', False)
-                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancel'])),
+                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
             },
         depends=['sale_state', 'product_template', 'product_has_packages'])
     package_quantity = fields.Integer('Package Quantity',
         states={
             'invisible': ~Eval('product_has_packages', False),
-            'readonly': Eval('sale_state').in_(['cancel', 'processing', 'done']),
+            'readonly': Eval('sale_state').in_(['cancelled', 'processing', 'done']),
             'required': (Eval('product_has_packages', False)
-                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancel'])),
+                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
             },
         depends=['sale_state', 'product_has_packages'])
 
