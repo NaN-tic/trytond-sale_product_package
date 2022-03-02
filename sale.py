@@ -8,7 +8,7 @@ from trytond.i18n import gettext
 from trytond.exceptions import UserError
 
 __all__ = ['Sale', 'SaleLine',
-    'HandleShipmentException', 'HandleInvoiceException']
+    'HandleShipmentException', 'HandleInvoiceException', 'ReturnSale']
 
 
 class Sale(metaclass=PoolMeta):
@@ -142,3 +142,22 @@ class HandleInvoiceException(metaclass=PoolMeta):
     def transition_handle(self):
         with Transaction().set_context(validate_package=False):
             return super(HandleInvoiceException, self).transition_handle()
+
+
+class ReturnSale(metaclass=PoolMeta):
+    __name__ = 'sale.return_sale'
+
+    def do_return_(self, action):
+        action, data = super().do_return_(action)
+
+        if data.get('res_id'):
+            sales = self.model.browse(data['res_id'])
+
+            for sale in sales:
+                for line in sale.lines:
+                    if line.type == 'line' and line.package_quantity:
+                        line.package_quantity *= -1
+                sale.lines = sale.lines  # Force saving
+            self.model.save(sales)
+
+        return action, data
