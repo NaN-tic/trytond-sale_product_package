@@ -140,4 +140,24 @@ Sale products with package::
     >>> line.quantity = 12
     >>> line.package_quantity
     2
+    >>> line = sale.lines.new()
+    >>> line.type = 'comment'
+    >>> line.description = 'Test comment'
     >>> sale.save()
+    >>> sale.click('quote')
+    >>> sale.click('confirm')
+    >>> sale.state
+    'processing'
+
+Return sale::
+
+
+  >>> return_sale = Wizard('sale.return_sale', [sale])
+  >>> return_sale.execute('return_')
+  >>> returned_sale, = Sale.find([
+  ...     ('state', '=', 'draft'),
+  ...     ])
+  >>> returned_sale.origin == sale
+  True
+  >>> sorted([(x.quantity or 0, x.package_quantity or 0) for x in returned_sale.lines])
+  [(-12.0, -2), (0, 0)]
