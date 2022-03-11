@@ -109,13 +109,13 @@ class SaleLine(metaclass=PoolMeta):
             self.quantity = None
             self.package_quantity = None
 
-    @fields.depends('product_package', 'package_quantity', 'quantity',
+    @fields.depends('product_package', 'package_quantity', 'quantity', 'unit',
         methods=['on_change_quantity', 'on_change_with_amount',
             'on_change_with_shipping_date',])
     def on_change_package_quantity(self):
         if self.product_package and self.package_quantity:
-            self.quantity = (float(self.package_quantity) *
-                self.product_package.quantity)
+            self.quantity = round((float(self.package_quantity) *
+                self.product_package.quantity), self.unit.digits)
             self.on_change_quantity()
             self.amount = self.on_change_with_amount()
             self.shipping_date = self.on_change_with_shipping_date()
