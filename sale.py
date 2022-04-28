@@ -118,7 +118,6 @@ class SaleLine(metaclass=PoolMeta):
                 self.product_package.quantity), self.unit.digits)
             self.on_change_quantity()
             self.amount = self.on_change_with_amount()
-            self.shipping_date = self.on_change_with_shipping_date()
 
     @fields.depends('product_package', 'quantity')
     def on_change_quantity(self):
@@ -126,6 +125,10 @@ class SaleLine(metaclass=PoolMeta):
         if self.product_package and self.quantity:
             self.package_quantity = int(self.quantity /
                 self.product_package.quantity)
+
+    @fields.depends('package_quantity')
+    def on_change_with_shipping_date(self, name=None):
+        return super().on_change_with_shipping_date(name=name)
 
 
 class HandleShipmentException(metaclass=PoolMeta):
