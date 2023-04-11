@@ -91,10 +91,18 @@ class SaleLine(metaclass=PoolMeta):
         if not self.product:
             self.product_package = None
         if self.product and not self.product_package:
-            for package in self.product.template.packages:
+            # Check if we have a product.package (product.product level)
+            for package in self.product.packages:
                 if package.is_default:
                     self.product_package = package
                     break
+            if not self.product_package:
+                # If we dont have a default value in (product.product) we try
+                # to search at template level (product.template)
+                for package in self.product.template.packages:
+                    if package.is_default:
+                        self.product_package = package
+                        break
 
     @fields.depends('product')
     def on_change_with_product_has_packages(self, name=None):
