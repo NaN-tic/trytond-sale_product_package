@@ -46,7 +46,9 @@ class SaleLine(metaclass=PoolMeta):
         'on_change_with_product_template')
     product_package = fields.Many2One('product.package', 'Package',
         domain=[
-            ('product', '=', Eval('product_template', 0))
+            ['OR',
+                ('template', '=', Eval('product_template', 0)),
+                ('product', '=', Eval('product', 0)),]
         ],
         states={
             'invisible': ~Eval('product_has_packages', False),
@@ -54,7 +56,8 @@ class SaleLine(metaclass=PoolMeta):
             'required': (Eval('product_has_packages', False)
                 & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
             },
-        depends=['sale_state', 'product_template', 'product_has_packages'])
+        depends=['sale_state', 'product_template', 'product_has_packages',
+            'product'])
     package_quantity = fields.Integer('Package Quantity',
         states={
             'invisible': ~Eval('product_has_packages', False),
