@@ -106,7 +106,8 @@ class SaleLine(metaclass=PoolMeta):
 
     @fields.depends('product')
     def on_change_with_product_has_packages(self, name=None):
-        if self.product and self.product.template.packages:
+        if self.product and (self.product.template.packages or
+                self.product.packages):
             return True
         return False
 
