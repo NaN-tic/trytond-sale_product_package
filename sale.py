@@ -127,7 +127,7 @@ class SaleLine(metaclass=PoolMeta):
         methods=['on_change_quantity', 'on_change_with_amount',
             'on_change_with_shipping_date',])
     def on_change_package_quantity(self):
-        if self.product_package and self.package_quantity:
+        if self.product_package and self.package_quantity and self.unit:
             self.quantity = round((float(self.package_quantity) *
                 self.product_package.quantity), self.unit.digits)
             self.on_change_quantity()
