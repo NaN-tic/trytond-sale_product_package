@@ -41,7 +41,7 @@ class SaleLine(metaclass=PoolMeta):
         'on_change_with_product_has_packages')
     product_template = fields.Function(fields.Many2One('product.template',
             "Product's template", context={
-                'company': Eval('company'),
+                'company': Eval('company', -1),
             }, depends=['company']),
         'on_change_with_product_template')
     product_package = fields.Many2One('product.package', 'Package',
