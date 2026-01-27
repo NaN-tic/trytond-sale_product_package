@@ -130,7 +130,7 @@ class SaleLine(metaclass=PoolMeta):
             self.on_change_quantity()
             self.amount = self.on_change_with_amount()
 
-    @fields.depends('product_package', 'quantity')
+    @fields.depends('product_package', '_parent_product_package.quantity', 'quantity')
     def on_change_quantity(self):
         super(SaleLine, self).on_change_quantity()
         if self.product_package and self.quantity:
