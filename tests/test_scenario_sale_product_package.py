@@ -100,6 +100,9 @@ class Test(unittest.TestCase):
         template.save()
         template.reload()
         package, package2 = template.packages
+        template.default_sale_package = package2
+        template.save()
+        template.reload()
         product.template = template
         product.save()
 
@@ -116,16 +119,17 @@ class Test(unittest.TestCase):
         sale.invoice_method = 'order'
         line = sale.lines.new()
         line.product = product
+        self.assertEqual(line.product_package, package2)
         line.package_quantity = 2
-        self.assertEqual(line.quantity, 12.0)
-        self.assertEqual(line.amount, Decimal('120.00'))
+        self.assertEqual(line.quantity, 4.0)
+        self.assertEqual(line.amount, Decimal('40.00'))
 
-        line.quantity = 13
+        line.quantity = 5
 
         with self.assertRaises(UserError):
             sale.save()
 
-        line.quantity = 12
+        line.quantity = 4
         self.assertEqual(line.package_quantity, 2)
 
         line = sale.lines.new()
@@ -145,4 +149,4 @@ class Test(unittest.TestCase):
         self.assertEqual(returned_sale.origin, sale)
         self.assertEqual(
             sorted([(x.quantity or 0, x.package_quantity or 0)
-                    for x in returned_sale.lines]), [(-12.0, -2), (0, 0)])
+                    for x in returned_sale.lines]), [(-4.0, -2), (0, 0)])

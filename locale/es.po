@@ -41,3 +41,11 @@ msgid ""
 msgstr ""
 "No puede crear paquetes porque hay líneas de venta que ya usan este producto"
 " sin paquetes."
+
+msgctxt "field:product.template,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "Paquete de venta predeterminado"
+
+msgctxt "field:product.product,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "Paquete de venta predeterminado"
