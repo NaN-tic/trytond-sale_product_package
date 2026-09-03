@@ -1,14 +1,13 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
+from decimal import Decimal
+
 from trytond.model import fields
-from trytond.pool import PoolMeta
+from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
-
-__all__ = ['Sale', 'SaleLine',
-    'HandleShipmentException', 'HandleInvoiceException', 'ReturnSale']
 
 
 class Sale(metaclass=PoolMeta):
@@ -56,13 +55,44 @@ class SaleLine(metaclass=PoolMeta):
             'required': (Eval('product_has_packages', False)
                 & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
             })
-    package_quantity = fields.Integer('Package Quantity',
-        states={
-            'invisible': ~Eval('product_has_packages', False),
-            'readonly': Eval('sale_state').in_(['cancelled', 'processing', 'done']),
-            'required': (Eval('product_has_packages', False)
-                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
-            })
+    package_quantity = fields.Function(fields.Integer('Package Quantity',
+            states={
+                'invisible': ~Eval('product_has_packages', False),
+                'readonly': Eval('sale_state').in_(['cancelled', 'processing', 'done']),
+                'required': (Eval('product_has_packages', False)
+                    & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
+                }),
+        'on_change_with_package_quantity', setter='set_package_quantity')
+
+    @fields.depends('product_package', 'quantity', 'unit', 'product')
+    def on_change_with_package_quantity(self, name=None):
+        package_quantity = None
+        if self.product_package and self.quantity is not None:
+            package_unit = self.product_package.unit
+            if not package_unit and self.product:
+                package_unit = self.product.default_uom
+            if self.unit and package_unit:
+                Uom = Pool().get('product.uom')
+                quantity = Uom.compute_qty(
+                    self.unit, self.quantity, package_unit)
+                value = (Decimal(str(quantity)) /
+                    Decimal(str(self.product_package.quantity)))
+                if value == value.to_integral_value():
+                    package_quantity = int(value)
+        return package_quantity
+
+    @classmethod
+    def set_package_quantity(cls, lines, name, value):
+        to_write = []
+        for line in lines:
+            if not line.product_package or value is None:
+                continue
+            quantity = value * line.product_package.quantity
+            if line.unit:
+                quantity = round(float(quantity), line.unit.digits)
+            to_write.extend(([line], {'quantity': quantity}))
+        if to_write:
+            cls.write(*to_write)
 
     @fields.depends('product_package', 'quantity', 'product')
     def pre_validate(self):
@@ -88,18 +118,7 @@ class SaleLine(metaclass=PoolMeta):
         if not self.product:
             self.product_package = None
         if self.product and not self.product_package:
-            # Check if we have a product.package (product.product level)
-            for package in self.product.packages:
-                if package.is_default:
-                    self.product_package = package
-                    break
-            if not self.product_package:
-                # If we dont have a default value in (product.product) we try
-                # to search at template level (product.template)
-                for package in self.product.template.packages:
-                    if package.is_default:
-                        self.product_package = package
-                        break
+            self.product_package = self.product.get_sale_package()
 
     @fields.depends('product')
     def on_change_with_product_has_packages(self, name=None):
@@ -122,24 +141,27 @@ class SaleLine(metaclass=PoolMeta):
 
     @fields.depends('product_package', 'package_quantity', 'quantity', 'unit',
         methods=['on_change_quantity', 'on_change_with_amount',
-            'on_change_with_shipping_date',])
+            'on_change_with_shipping_date'])
     def on_change_package_quantity(self):
-        if self.product_package and self.package_quantity and self.unit:
+        if (self.product_package and self.package_quantity is not None
+                and self.unit):
             self.quantity = round((float(self.package_quantity) *
                 self.product_package.quantity), self.unit.digits)
             self.on_change_quantity()
             self.amount = self.on_change_with_amount()
 
-    @fields.depends('product_package', '_parent_product_package.quantity', 'quantity')
-    def on_change_quantity(self):
-        super(SaleLine, self).on_change_quantity()
-        if self.product_package and self.quantity:
-            self.package_quantity = int(self.quantity /
-                self.product_package.quantity)
-
     @fields.depends('package_quantity')
     def on_change_with_shipping_date(self, name=None):
         return super().on_change_with_shipping_date(name=name)
+
+
+class SaleLineStockProductPackage(metaclass=PoolMeta):
+    __name__ = 'sale.line'
+
+    def get_move(self, shipment_type):
+        move = super().get_move(shipment_type)
+        move.product_package = self.product_package
+        return move
 
 
 class HandleShipmentException(metaclass=PoolMeta):
@@ -156,22 +178,3 @@ class HandleInvoiceException(metaclass=PoolMeta):
     def transition_handle(self):
         with Transaction().set_context(validate_package=False):
             return super(HandleInvoiceException, self).transition_handle()
-
-
-class ReturnSale(metaclass=PoolMeta):
-    __name__ = 'sale.return_sale'
-
-    def do_return_(self, action):
-        action, data = super().do_return_(action)
-
-        if data.get('res_id'):
-            sales = self.model.browse(data['res_id'])
-
-            for sale in sales:
-                for line in sale.lines:
-                    if line.type == 'line' and line.package_quantity:
-                        line.package_quantity *= -1
-                sale.lines = sale.lines  # Force saving
-            self.model.save(sales)
-
-        return action, data

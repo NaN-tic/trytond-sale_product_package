@@ -8,11 +8,16 @@ from . import sale
 def register():
     Pool.register(
         product.Package,
+        product.Template,
+        product.Product,
         sale.Sale,
         sale.SaleLine,
         module='sale_product_package', type_='model')
     Pool.register(
+        sale.SaleLineStockProductPackage,
+        depends=['stock_product_package'],
+        module='sale_product_package', type_='model')
+    Pool.register(
         sale.HandleShipmentException,
         sale.HandleInvoiceException,
-        sale.ReturnSale,
         module='sale_product_package', type_='wizard')

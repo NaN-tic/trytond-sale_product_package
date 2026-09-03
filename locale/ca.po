@@ -39,3 +39,11 @@ msgid "You can not create a package because there are sale lines that already "
 "use the product without packages."
 msgstr "No pot crear paquets perquè ja hi han línies de venta que ja utilitzen "
 "aquest producte sense paquets."
+
+msgctxt "field:product.template,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "Paquet de venda predeterminat"
+
+msgctxt "field:product.product,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "Paquet de venda predeterminat"
