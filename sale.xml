@@ -34,5 +34,10 @@
             <field name="inherit" ref="sale.sale_line_view_tree_sequence"/>
             <field name="name">sale_line_tree_sequence</field>
         </record>
+        <record model="ir.ui.view" id="sale_configuration_view_form">
+            <field name="model">sale.configuration</field>
+            <field name="inherit" ref="sale.sale_configuration_view_form"/>
+            <field name="name">configuration_form</field>
+        </record>
     </data>
 </tryton>

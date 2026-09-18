@@ -10,34 +10,23 @@ from trytond.i18n import gettext
 from trytond.exceptions import UserError
 
 
+class Configuration(metaclass=PoolMeta):
+    __name__ = 'sale.configuration'
+
+    package_required = fields.Boolean('Package Required')
+
+    @staticmethod
+    def default_package_required():
+        return False
+
+
 class Sale(metaclass=PoolMeta):
     __name__ = 'sale.sale'
-
-    @classmethod
-    def _check_product_has_package_required(cls, sales):
-        for sale in sales:
-            for line in sale.lines:
-                if line.type != 'line':
-                    continue
-                if (line.product and line.product_has_packages
-                        and not line.product_package):
-                    return False
-        return True
-
-    @classmethod
-    def confirm(cls, sales):
-        if not cls._check_product_has_package_required(sales):
-            raise UserError(gettext(
-                'sale_product_package.msg_product_has_package_required'))
-        super(Sale, cls).confirm(sales)
 
 
 class SaleLine(metaclass=PoolMeta):
     __name__ = 'sale.line'
 
-    product_has_packages = fields.Function(fields.Boolean(
-            'Product Has packages'),
-        'on_change_with_product_has_packages')
     product_template = fields.Function(fields.Many2One('product.template',
             "Product's template", context={
                 'company': Eval('company', -1),
@@ -48,19 +37,13 @@ class SaleLine(metaclass=PoolMeta):
             ['OR',
                 ('template', '=', Eval('product_template', 0)),
                 ('product', '=', Eval('product', 0)),]
-        ],
+            ],
         states={
-            'invisible': ~Eval('product_has_packages', False),
             'readonly': Eval('sale_state').in_(['cancelled', 'processing', 'done']),
-            'required': (Eval('product_has_packages', False)
-                & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
             })
     package_quantity = fields.Function(fields.Integer('Package Quantity',
             states={
-                'invisible': ~Eval('product_has_packages', False),
                 'readonly': Eval('sale_state').in_(['cancelled', 'processing', 'done']),
-                'required': (Eval('product_has_packages', False)
-                    & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
                 }),
         'on_change_with_package_quantity', setter='set_package_quantity')
 
@@ -100,6 +83,14 @@ class SaleLine(metaclass=PoolMeta):
             super(SaleLine, self).pre_validate()
         except AttributeError:
             pass
+        Configuration = Pool().get('sale.configuration')
+        if (self.type == 'line' and self.product
+                and self.sale_state == 'draft'
+                and Configuration(1).package_required
+                and not self.product_package):
+            raise UserError(gettext(
+                'sale_product_package.msg_package_required',
+                line=self.rec_name))
         if (self.product_package
                 and Transaction().context.get('validate_package', True)):
             package_quantity = ((self.quantity or 0.0) /
@@ -119,13 +110,6 @@ class SaleLine(metaclass=PoolMeta):
             self.product_package = None
         if self.product and not self.product_package:
             self.product_package = self.product.get_sale_package()
-
-    @fields.depends('product')
-    def on_change_with_product_has_packages(self, name=None):
-        if self.product and (self.product.template.packages or
-                self.product.packages):
-            return True
-        return False
 
     @fields.depends('product')
     def on_change_with_product_template(self, name=None):
@@ -160,7 +144,8 @@ class SaleLineStockProductPackage(metaclass=PoolMeta):
 
     def get_move(self, shipment_type):
         move = super().get_move(shipment_type)
-        move.product_package = self.product_package
+        if move:
+            move.product_package = self.product_package
         return move
 
 

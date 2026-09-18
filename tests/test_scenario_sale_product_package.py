@@ -124,6 +124,13 @@ class Test(unittest.TestCase):
         self.assertEqual(line.quantity, 4.0)
         self.assertEqual(line.amount, Decimal('40.00'))
 
+        packageless_line = sale.lines.new()
+        packageless_line.product = product
+        packageless_line.product_package = None
+        packageless_line.quantity = 1
+        packageless_line.unit_price = template.list_price
+        self.assertIsNone(packageless_line.product_package)
+
         line.quantity = 5
 
         with self.assertRaises(UserError):
@@ -131,6 +138,26 @@ class Test(unittest.TestCase):
 
         line.quantity = 4
         self.assertEqual(line.package_quantity, 2)
+
+        Configuration = Model.get('sale.configuration')
+        configuration = Configuration(1)
+        config.user = 0
+        configuration.package_required = True
+        configuration.save()
+        required_sale = Sale()
+        required_sale.party = customer
+        required_sale.payment_term = payment_term
+        required_sale.invoice_method = 'order'
+        required_line = required_sale.lines.new()
+        required_line.product = product
+        required_line.product_package = None
+        required_line.quantity = 2
+        required_line.unit_price = template.list_price
+        with self.assertRaises(UserError):
+            required_sale.save()
+        configuration.package_required = False
+        configuration.save()
+        config.user = sale_user.id
 
         line = sale.lines.new()
         line.type = 'comment'
@@ -149,4 +176,5 @@ class Test(unittest.TestCase):
         self.assertEqual(returned_sale.origin, sale)
         self.assertEqual(
             sorted([(x.quantity or 0, x.package_quantity or 0)
-                    for x in returned_sale.lines]), [(-4.0, -2), (0, 0)])
+                    for x in returned_sale.lines]),
+            [(-4.0, -2), (-1.0, 0), (0, 0)])
