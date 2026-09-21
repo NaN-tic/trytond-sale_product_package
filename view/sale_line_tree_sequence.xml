@@ -5,6 +5,5 @@
     <xpath expr="/tree/field[@name='product']" position="after">
         <field name="product_package"/>
         <field name="package_quantity"/>
-        <field name="product_has_packages" tree_invisible="1"/>
     </xpath>
 </data>
