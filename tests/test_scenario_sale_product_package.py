@@ -100,6 +100,9 @@ class Test(unittest.TestCase):
         template.save()
         template.reload()
         package, package2 = template.packages
+        template.default_sale_package = package2
+        template.save()
+        template.reload()
         product.template = template
         product.save()
 
@@ -116,17 +119,45 @@ class Test(unittest.TestCase):
         sale.invoice_method = 'order'
         line = sale.lines.new()
         line.product = product
+        self.assertEqual(line.product_package, package2)
         line.package_quantity = 2
-        self.assertEqual(line.quantity, 12.0)
-        self.assertEqual(line.amount, Decimal('120.00'))
+        self.assertEqual(line.quantity, 4.0)
+        self.assertEqual(line.amount, Decimal('40.00'))
 
-        line.quantity = 13
+        packageless_line = sale.lines.new()
+        packageless_line.product = product
+        packageless_line.product_package = None
+        packageless_line.quantity = 1
+        packageless_line.unit_price = template.list_price
+        self.assertIsNone(packageless_line.product_package)
+
+        line.quantity = 5
 
         with self.assertRaises(UserError):
             sale.save()
 
-        line.quantity = 12
+        line.quantity = 4
         self.assertEqual(line.package_quantity, 2)
+
+        Configuration = Model.get('sale.configuration')
+        configuration = Configuration(1)
+        config.user = 0
+        configuration.package_required = True
+        configuration.save()
+        required_sale = Sale()
+        required_sale.party = customer
+        required_sale.payment_term = payment_term
+        required_sale.invoice_method = 'order'
+        required_line = required_sale.lines.new()
+        required_line.product = product
+        required_line.product_package = None
+        required_line.quantity = 2
+        required_line.unit_price = template.list_price
+        with self.assertRaises(UserError):
+            required_sale.save()
+        configuration.package_required = False
+        configuration.save()
+        config.user = sale_user.id
 
         line = sale.lines.new()
         line.type = 'comment'
@@ -145,4 +176,5 @@ class Test(unittest.TestCase):
         self.assertEqual(returned_sale.origin, sale)
         self.assertEqual(
             sorted([(x.quantity or 0, x.package_quantity or 0)
-                    for x in returned_sale.lines]), [(-12.0, -2), (0, 0)])
+                    for x in returned_sale.lines]),
+            [(-4.0, -2), (-1.0, 0), (0, 0)])

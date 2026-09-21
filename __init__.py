@@ -1,18 +1,23 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from trytond.pool import Pool
-from . import product
-from . import sale
+from . import product, sale
 
 
 def register():
     Pool.register(
         product.Package,
+        product.Template,
+        product.Product,
+        sale.Configuration,
         sale.Sale,
         sale.SaleLine,
         module='sale_product_package', type_='model')
     Pool.register(
+        sale.SaleLineStockProductPackage,
+        depends=['stock_product_package'],
+        module='sale_product_package', type_='model')
+    Pool.register(
         sale.HandleShipmentException,
         sale.HandleInvoiceException,
-        sale.ReturnSale,
         module='sale_product_package', type_='wizard')
