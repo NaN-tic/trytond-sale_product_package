@@ -5,8 +5,10 @@ if 'pool' not in globals():
 
 
 Configuration = pool.get('sale.configuration')
-configuration = Configuration(1)
-configuration.package_required = True
-configuration.save()
 
-transaction.commit()
+with transaction.new_transaction(
+        _lock_tables=[Configuration._table]) as write_transaction:
+    configuration = Configuration(1)
+    configuration.package_required = True
+    configuration.save()
+    write_transaction.commit()
