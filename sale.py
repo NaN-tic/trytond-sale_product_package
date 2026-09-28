@@ -64,7 +64,8 @@ class SaleLine(metaclass=PoolMeta):
                 & ~Eval('sale_state').in_(['draft', 'quotation', 'cancelled'])),
             })
 
-    @fields.depends('product_package', 'quantity', 'product')
+    @fields.depends(
+        'type', 'product', 'sale_state', 'product_package', 'quantity')
     def pre_validate(self):
         try:
             super(SaleLine, self).pre_validate()
