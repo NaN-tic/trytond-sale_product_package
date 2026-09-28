@@ -77,7 +77,8 @@ class SaleLine(metaclass=PoolMeta):
         if to_write:
             cls.write(*to_write)
 
-    @fields.depends('product_package', 'quantity', 'product')
+    @fields.depends(
+        'type', 'product', 'sale_state', 'product_package', 'quantity')
     def pre_validate(self):
         try:
             super(SaleLine, self).pre_validate()
