@@ -106,6 +106,20 @@ class Test(unittest.TestCase):
         product.template = template
         product.save()
 
+        unpackaged_template = ProductTemplate()
+        unpackaged_template.name = 'unpackaged product'
+        unpackaged_template.default_uom = unit
+        unpackaged_template.type = 'goods'
+        unpackaged_template.salable = True
+        unpackaged_template.list_price = Decimal('10')
+        unpackaged_template.cost_price = Decimal('5')
+        unpackaged_template.cost_price_method = 'fixed'
+        unpackaged_template.account_category = account_category_tax
+        unpackaged_template.save()
+        unpackaged_product = Product()
+        unpackaged_product.template = unpackaged_template
+        unpackaged_product.save()
+
         # Create payment term
         payment_term = create_payment_term()
         payment_term.save()
@@ -155,6 +169,16 @@ class Test(unittest.TestCase):
         required_line.unit_price = template.list_price
         with self.assertRaises(UserError):
             required_sale.save()
+        unpackaged_sale = Sale()
+        unpackaged_sale.party = customer
+        unpackaged_sale.payment_term = payment_term
+        unpackaged_sale.invoice_method = 'order'
+        unpackaged_line = unpackaged_sale.lines.new()
+        unpackaged_line.product = unpackaged_product
+        self.assertIsNone(unpackaged_line.product_package)
+        unpackaged_line.quantity = 2
+        unpackaged_line.unit_price = unpackaged_template.list_price
+        unpackaged_sale.save()
         configuration.package_required = False
         configuration.save()
         config.user = sale_user.id
@@ -170,9 +194,11 @@ class Test(unittest.TestCase):
         # Return sale
         return_sale = Wizard('sale.return_sale', [sale])
         return_sale.execute('return_')
-        returned_sale, = Sale.find([
-            ('state', '=', 'draft'),
-        ])
+        returned_sale, = [
+            returned_sale for returned_sale in Sale.find([
+                ('state', '=', 'draft'),
+            ])
+            if returned_sale.origin == sale]
         self.assertEqual(returned_sale.origin, sale)
         self.assertEqual(
             sorted([(x.quantity or 0, x.package_quantity or 0)
