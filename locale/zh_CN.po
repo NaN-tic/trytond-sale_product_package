@@ -1,0 +1,46 @@
+#
+msgid ""
+msgstr ""
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "field:sale.line,package_quantity:"
+msgid "Package Quantity"
+msgstr "包装数量"
+
+msgctxt "field:sale.configuration,package_required:"
+msgid "Package Required"
+msgstr "必须使用包装"
+
+msgctxt "field:sale.line,product_package:"
+msgid "Package"
+msgstr "包装"
+
+msgctxt "field:sale.line,product_template:"
+msgid "Product's template"
+msgstr "产品模板"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_package_quantity"
+msgid ""
+"The quantity \"%(qty)s\" of product \"%(product)s\" is not a multiple of "
+"it\\'s package \"%(package)s\" quantity \"%(package_qty)s\"."
+msgstr "产品“%(product)s”的数量“%(qty)s”不是其包装“%(package)s”数量“%(package_qty)s”的整数倍。"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_package_required"
+msgid ""
+"Sale configuration requires packages on lines. Please assign a package to "
+"line \"%(line)s\" and try again."
+msgstr "销售配置要求明细使用包装。请为明细“%(line)s”分配包装后重试。"
+
+msgctxt "field:product.template,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "默认销售包装"
+
+msgctxt "field:product.product,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "默认销售包装"
