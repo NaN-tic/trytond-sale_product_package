@@ -1,0 +1,50 @@
+#
+msgid ""
+msgstr ""
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "field:sale.line,package_quantity:"
+msgid "Package Quantity"
+msgstr "Csomagolási mennyiség"
+
+msgctxt "field:sale.configuration,package_required:"
+msgid "Package Required"
+msgstr "Csomagolás kötelező"
+
+msgctxt "field:sale.line,product_package:"
+msgid "Package"
+msgstr "Csomagolás"
+
+msgctxt "field:sale.line,product_template:"
+msgid "Product's template"
+msgstr "Termék sablonja"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_package_quantity"
+msgid ""
+"The quantity \"%(qty)s\" of product \"%(product)s\" is not a multiple of "
+"it\\'s package \"%(package)s\" quantity \"%(package_qty)s\"."
+msgstr ""
+"A(z) „%(product)s” termék „%(qty)s” mennyisége nem többszöröse a(z) "
+"„%(package)s” csomagolás „%(package_qty)s” mennyiségének."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_package_required"
+msgid ""
+"Sale configuration requires packages on lines. Please assign a package to "
+"line \"%(line)s\" and try again."
+msgstr ""
+"Az értékesítési beállítások szerint a tételekhez csomagolás szükséges. "
+"Rendeljen csomagolást a(z) „%(line)s” tételhez, majd próbálja újra."
+
+msgctxt "field:product.template,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "Alapértelmezett értékesítési csomagolás"
+
+msgctxt "field:product.product,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "Alapértelmezett értékesítési csomagolás"
