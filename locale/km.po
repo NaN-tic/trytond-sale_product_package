@@ -1,0 +1,50 @@
+#
+msgid ""
+msgstr ""
+"Language: km\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "field:sale.line,package_quantity:"
+msgid "Package Quantity"
+msgstr "បរិមាណក្នុងកញ្ចប់"
+
+msgctxt "field:sale.configuration,package_required:"
+msgid "Package Required"
+msgstr "តម្រូវឱ្យមានកញ្ចប់"
+
+msgctxt "field:sale.line,product_package:"
+msgid "Package"
+msgstr "កញ្ចប់"
+
+msgctxt "field:sale.line,product_template:"
+msgid "Product's template"
+msgstr "គំរូផលិតផល"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_package_quantity"
+msgid ""
+"The quantity \"%(qty)s\" of product \"%(product)s\" is not a multiple of "
+"it\\'s package \"%(package)s\" quantity \"%(package_qty)s\"."
+msgstr ""
+"បរិមាណ «%(qty)s» របស់ផលិតផល «%(product)s» មិនមែនជាពហុគុណនៃបរិមាណ "
+"«%(package_qty)s» ក្នុងកញ្ចប់ «%(package)s» ទេ។"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_package_required"
+msgid ""
+"Sale configuration requires packages on lines. Please assign a package to "
+"line \"%(line)s\" and try again."
+msgstr ""
+"ការកំណត់ការលក់តម្រូវឱ្យមានកញ្ចប់ក្នុងបន្ទាត់។ សូមកំណត់កញ្ចប់សម្រាប់បន្ទាត់ "
+"«%(line)s» ហើយព្យាយាមម្តងទៀត។"
+
+msgctxt "field:product.template,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "កញ្ចប់លក់លំនាំដើម"
+
+msgctxt "field:product.product,default_sale_package:"
+msgid "Default Sale Package"
+msgstr "កញ្ចប់លក់លំនាំដើម"
