@@ -73,8 +73,8 @@ class SaleLine(metaclass=PoolMeta):
             pass
         if (self.product_package
                 and Transaction().context.get('validate_package', True)):
-            package_quantity = ((self.quantity or 0.0) /
-                self.product_package.quantity)
+            package_quantity = round((self.quantity or 0.0) /
+                self.product_package.quantity, 8)
             if float(int(package_quantity)) != package_quantity:
                 raise UserError(gettext(
                     'sale_product_package.msg_package_quantity',
@@ -135,8 +135,8 @@ class SaleLine(metaclass=PoolMeta):
     def on_change_quantity(self):
         super(SaleLine, self).on_change_quantity()
         if self.product_package and self.quantity:
-            self.package_quantity = int(self.quantity /
-                self.product_package.quantity)
+            self.package_quantity = int(round(self.quantity /
+                self.product_package.quantity, 8))
 
     @fields.depends('package_quantity')
     def on_change_with_shipping_date(self, name=None):
