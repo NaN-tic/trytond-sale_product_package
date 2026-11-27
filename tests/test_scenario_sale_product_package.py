@@ -120,6 +120,25 @@ class Test(unittest.TestCase):
         unpackaged_product.template = unpackaged_template
         unpackaged_product.save()
 
+        # Create a product sold in decimal-sized packages.
+        kilogram, = ProductUom.find([('name', '=', 'Kilogram')])
+        decimal_template = ProductTemplate()
+        decimal_template.name = 'Rucola'
+        decimal_template.default_uom = kilogram
+        decimal_template.type = 'goods'
+        decimal_template.salable = True
+        decimal_template.list_price = Decimal('10')
+        decimal_template.cost_price_method = 'fixed'
+        decimal_template.account_category = account_category
+        decimal_package = decimal_template.packages.new()
+        decimal_package.name = '100 g'
+        decimal_package.quantity = 0.1
+        decimal_template.save()
+        decimal_package, = decimal_template.packages
+        decimal_product = Product(template=decimal_template)
+        decimal_product.cost_price = Decimal('5')
+        decimal_product.save()
+
         # Create payment term
         payment_term = create_payment_term()
         payment_term.save()
@@ -204,3 +223,41 @@ class Test(unittest.TestCase):
             sorted([(x.quantity or 0, x.package_quantity or 0)
                     for x in returned_sale.lines]),
             [(-4.0, -2), (-1.0, 0), (0, 0)])
+
+        with self.subTest(scenario='decimal packages'):
+            decimal_order = Sale(party=customer,
+                payment_term=payment_term)
+            line = decimal_order.lines.new()
+            line.product = decimal_product
+            line.product_package = decimal_package
+            line.package_quantity = 3
+            self.assertEqual(line.quantity, 0.3)
+            self.assertEqual(line.package_quantity, 3)
+            # The TPV repeats the quantity onchange after setting packages.
+            line._on_change(['quantity'])
+            self.assertEqual(line.package_quantity, 3)
+            decimal_order.save()
+            line, = decimal_order.lines
+            self.assertEqual(line.quantity, 0.3)
+            self.assertEqual(line.package_quantity, 3)
+
+            # Group another order into the same product line.
+            line.package_quantity += 3
+            self.assertEqual(line.quantity, 0.6)
+            self.assertEqual(line.package_quantity, 6)
+            line.quantity = 0.3
+            self.assertEqual(line.package_quantity, 3)
+            decimal_order.save()
+            line, = decimal_order.lines
+            self.assertEqual(line.quantity, 0.3)
+            self.assertEqual(line.package_quantity, 3)
+
+            line.quantity = 0.35
+            with self.assertRaises(UserError):
+                decimal_order.save()
+            line.quantity = -0.3
+            self.assertEqual(line.package_quantity, -3)
+            decimal_order.save()
+            line, = decimal_order.lines
+            self.assertEqual(line.quantity, -0.3)
+            self.assertEqual(line.package_quantity, -3)
