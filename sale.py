@@ -95,8 +95,8 @@ class SaleLine(metaclass=PoolMeta):
                 line=self.product.rec_name))
         if (self.product_package
                 and Transaction().context.get('validate_package', True)):
-            package_quantity = ((self.quantity or 0.0) /
-                self.product_package.quantity)
+            package_quantity = round((self.quantity or 0.0) /
+                self.product_package.quantity, 8)
             if float(int(package_quantity)) != package_quantity:
                 raise UserError(gettext(
                     'sale_product_package.msg_package_quantity',
